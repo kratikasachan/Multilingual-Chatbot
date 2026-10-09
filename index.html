@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voice & Web Chatbot</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        #chat {
+            border: 1px solid #ccc;
+            height: 300px;
+            overflow-y: scroll;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 75%;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px;
+        }
+
+        .User {
+            color: blue;
+        }
+
+        .Bot {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Voice & Web Chatbot</h1>
+
+    <div id="chat"></div>
+
+    <input type="text" id="message" placeholder="Type your message here..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const chatDiv = document.getElementById('chat');
+
+        function appendMessage(sender, text) {
+            const p = document.createElement('p');
+            p.innerHTML = `<strong class="${sender}">${sender}:</strong> ${text}`;
+            chatDiv.appendChild(p);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+
+            if (!message) return;
+
+            appendMessage('User', message);
+
+            try {
+                const res = await fetch('http://127.0.0.1:5000/chat', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json' 
+                    },
+                    body: JSON.stringify({ 
+                        message: message, 
+                        language: "en" 
+                    })
+                });
+
+                const data = await res.json();
+                appendMessage('Bot', data.reply);
+
+            } catch (error) {
+                appendMessage('Bot', "Server not responding");
+            }
+
+            messageInput.value = '';
+        }
+    </script>
+
+</body>
+</html>
